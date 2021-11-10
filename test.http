@@ -1,0 +1,2 @@
+### hello
+GET https://hl7cz1xyvg.execute-api.ap-northeast-3.amazonaws.com/dev/hello?name=aaa
