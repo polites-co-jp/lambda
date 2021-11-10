@@ -20,7 +20,7 @@ const hello: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   //   message: JSON.stringify("afeasdf"),
   //   event,
   // });
-  const res = await slack.postMessage("Lambdaからの送信");
+  const res = await slack.postMessage("送信テスト");
 
   return formatJSONResponse({
     message: JSON.stringify(res),
