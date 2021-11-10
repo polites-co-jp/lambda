@@ -107,9 +107,7 @@
         },
         "Role": "arn:aws:iam::834536471981:role/lambda-dev"
       },
-      "DependsOn": [
-        "HelloLogGroup"
-      ]
+      "DependsOn": ["HelloLogGroup"]
     },
     "SlackPostLambdaFunction": {
       "Type": "AWS::Lambda::Function",
@@ -135,9 +133,7 @@
         },
         "Role": "arn:aws:iam::834536471981:role/lambda-dev"
       },
-      "DependsOn": [
-        "SlackPostLogGroup"
-      ]
+      "DependsOn": ["SlackPostLogGroup"]
     },
     "HelloLambdaVersionXUIW6miJvr63qtDxb5GcMuXD0FIOAZMLnd5Eqmc": {
       "Type": "AWS::Lambda::Version",
@@ -164,9 +160,7 @@
       "Properties": {
         "Name": "lambda-dev",
         "EndpointConfiguration": {
-          "Types": [
-            "EDGE"
-          ]
+          "Types": ["EDGE"]
         },
         "Policy": "",
         "MinimumCompressionSize": 1024
@@ -176,10 +170,7 @@
       "Type": "AWS::ApiGateway::Resource",
       "Properties": {
         "ParentId": {
-          "Fn::GetAtt": [
-            "ApiGatewayRestApi",
-            "RootResourceId"
-          ]
+          "Fn::GetAtt": ["ApiGatewayRestApi", "RootResourceId"]
         },
         "PathPart": "hello",
         "RestApiId": {
@@ -191,10 +182,7 @@
       "Type": "AWS::ApiGateway::Resource",
       "Properties": {
         "ParentId": {
-          "Fn::GetAtt": [
-            "ApiGatewayRestApi",
-            "RootResourceId"
-          ]
+          "Fn::GetAtt": ["ApiGatewayRestApi", "RootResourceId"]
         },
         "PathPart": "slack-post",
         "RestApiId": {
@@ -232,10 +220,7 @@
                 },
                 ":lambda:path/2015-03-31/functions/",
                 {
-                  "Fn::GetAtt": [
-                    "HelloLambdaFunction",
-                    "Arn"
-                  ]
+                  "Fn::GetAtt": ["HelloLambdaFunction", "Arn"]
                 },
                 "/invocations"
               ]
@@ -244,9 +229,7 @@
         },
         "MethodResponses": []
       },
-      "DependsOn": [
-        "HelloLambdaPermissionApiGateway"
-      ]
+      "DependsOn": ["HelloLambdaPermissionApiGateway"]
     },
     "ApiGatewayMethodSlackDashpostGet": {
       "Type": "AWS::ApiGateway::Method",
@@ -278,10 +261,7 @@
                 },
                 ":lambda:path/2015-03-31/functions/",
                 {
-                  "Fn::GetAtt": [
-                    "SlackPostLambdaFunction",
-                    "Arn"
-                  ]
+                  "Fn::GetAtt": ["SlackPostLambdaFunction", "Arn"]
                 },
                 "/invocations"
               ]
@@ -290,9 +270,7 @@
         },
         "MethodResponses": []
       },
-      "DependsOn": [
-        "SlackPostLambdaPermissionApiGateway"
-      ]
+      "DependsOn": ["SlackPostLambdaPermissionApiGateway"]
     },
     "ApiGatewayDeployment1636527263565": {
       "Type": "AWS::ApiGateway::Deployment",
@@ -311,10 +289,7 @@
       "Type": "AWS::Lambda::Permission",
       "Properties": {
         "FunctionName": {
-          "Fn::GetAtt": [
-            "HelloLambdaFunction",
-            "Arn"
-          ]
+          "Fn::GetAtt": ["HelloLambdaFunction", "Arn"]
         },
         "Action": "lambda:InvokeFunction",
         "Principal": "apigateway.amazonaws.com",
@@ -348,10 +323,7 @@
       "Type": "AWS::Lambda::Permission",
       "Properties": {
         "FunctionName": {
-          "Fn::GetAtt": [
-            "SlackPostLambdaFunction",
-            "Arn"
-          ]
+          "Fn::GetAtt": ["SlackPostLambdaFunction", "Arn"]
         },
         "Action": "lambda:InvokeFunction",
         "Principal": "apigateway.amazonaws.com",
