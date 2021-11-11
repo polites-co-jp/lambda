@@ -1,3 +1,5 @@
 node_modules/
 key.txt
 .env
+.serverless/
+.dynamodb/

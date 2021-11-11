@@ -4,23 +4,20 @@ import { middyfy } from "@libs/lambda";
 
 import schema from "./schema";
 
-import Slack from "@libs/slack";
+import Dynamo from "@libs/dynamo";
 
 const handlerObj: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   event
 ) => {
-  console.log(process.env.SLACK_ACCESS_TOKEN);
+  const dynamo = new Dynamo();
+  const putres = await dynamo.putValue("usersTable", {
+    id: { S: "123" },
+    name: { S: "田中2" },
+  });
+  console.log(putres);
 
-  const slack = new Slack(
-    process.env.SLACK_ACCESS_TOKEN,
-    process.env.CHANNEL_ID
-  );
-
-  // return formatJSONResponse({
-  //   message: JSON.stringify("afeasdf"),
-  //   event,
-  // });
-  const res = await slack.postMessage("送信テスト");
+  const res = await dynamo.select("usersTable", `id = $1`, "123");
+  // const res = await dynamo.getValue("usersTable", { id: "123" });
 
   return formatJSONResponse({
     message: JSON.stringify(res),
