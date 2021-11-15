@@ -34,7 +34,7 @@ const serverlessConfiguration: AWS = {
     //     Action: ["dynamodb:PutItem", "dynamodb:GetItem"],
     //     // 処理を許可するリソースを設定
     //     Resource:
-    //       "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/usersTable",
+    //       "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/chatUsersTable",
     //   },
     // ],
   },
@@ -71,34 +71,62 @@ const serverlessConfiguration: AWS = {
 
     Resources: {
       // ResourceとしてDynamoDBを設定
-      usersTable: {
+      chatUsersTable: {
         Type: "AWS::DynamoDB::Table",
         Properties: {
-          TableName: "usersTable",
+          TableName: "chatUsersTable",
+          // PrimaryKey:{
+          //     AttributeName: "username",
+          //     AttributeType: "S",
+          //   },
+          // },
           // Primary KeyとSort Key(あれば)の型を指定
           AttributeDefinitions: [
             {
-              AttributeName: "id",
+              AttributeName: "username",
               AttributeType: "S",
             },
-            {
-              AttributeName: "name",
-              AttributeType: "S",
-            },
+            // {
+            //   AttributeName: "email",
+            //   AttributeType: "S",
+            // },
+            // {
+            //   AttributeName: "slack_token",
+            //   AttributeType: "S",
+            // },
+            // {
+            //   AttributeName: "sf_client_id",
+            //   AttributeType: "S",
+            // },
+            // {
+            //   AttributeName: "sf_oauth_seq_key",
+            //   AttributeType: "S",
+            // },
           ],
           // # キーの種類を指定（ハッシュorレンジキー）
           // ハッシュ＝Primary Key, レンジキー=Sort Key
           KeySchema: [
             {
               //  PrimayKey
+              AttributeName: "username",
               KeyType: "HASH",
-              AttributeName: "id",
             },
-            {
-              //  ソートキー
-              KeyType: "RANGE",
-              AttributeName: "name",
-            },
+            // {
+            //   AttributeName: "email",
+            //   KeyType: "RANGE",
+            // },
+            // {
+            //   AttributeName: "slack_token",
+            //   KeyType: "RANGE",
+            // },
+            // {
+            //   AttributeName: "sf_client_id",
+            //   KeyType: "RANGE",
+            // },
+            // {
+            //   AttributeName: "sf_oauth_seq_key",
+            //   KeyType: "RANGE",
+            // },
           ],
           // プロビジョニングするキャパシティーユニットの設定
           ProvisionedThroughput: {

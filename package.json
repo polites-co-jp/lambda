@@ -19,6 +19,7 @@
     "@middy/http-json-body-parser": "^1.5.2",
     "@slack/web-api": "^6.5.0",
     "aws-sdk": "^2.1026.0",
+    "chrome-aws-lambda": "^10.1.0",
     "serverless-dynamodb-local": "^0.2.40"
   },
   "devDependencies": {

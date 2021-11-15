@@ -1245,8 +1245,12 @@ var Dynamo = class {
     }) : new import_aws_sdk.DynamoDB({ apiVersion: "2012-08-10" });
   }
   async putValue(tableName, item) {
+    let items = {};
+    Object.keys(item).forEach((k) => {
+      items[k] = { [this.getValueType(item[k])]: item[k] };
+    });
     return new Promise((resolve, reject) => {
-      this.client.putItem({ TableName: tableName, Item: item }, function(err, data) {
+      this.client.putItem({ TableName: tableName, Item: items }, function(err, data) {
         if (err) {
           return reject(err);
         } else {
@@ -1256,12 +1260,76 @@ var Dynamo = class {
     });
   }
   async getValue(tableName, key) {
+    let items = {};
+    Object.keys(key).forEach((k) => {
+      items[k] = { [this.getValueType(key[k])]: key[k] };
+    });
+    console.log(items);
     return new Promise((resolve, reject) => {
       this.client.getItem({
         TableName: tableName,
-        Key: key,
-        ProjectionExpression: "ATTRIBUTE_NAME"
+        Key: items
       }, function(err, data) {
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(data);
+        }
+      });
+    });
+  }
+  async update(tableName, key, updateValue) {
+    let items = {};
+    Object.keys(key).forEach((k) => {
+      items[k] = { [this.getValueType(key[k])]: key[k] };
+    });
+    let ExpressionAttributeNames = {};
+    let ExpressionAttributeValues = {};
+    let tmpUpdateExpression = [];
+    Object.keys(updateValue).forEach((k, idx) => {
+      ExpressionAttributeNames[`#v${idx}`] = k;
+      ExpressionAttributeValues[`:v${idx}`] = {
+        [this.getValueType(updateValue[k])]: updateValue[k]
+      };
+      tmpUpdateExpression.push({ sharp: `#v${idx}`, newv: `:v${idx}` });
+    });
+    const UpdateExpression = `SET ${tmpUpdateExpression.map((v) => v.sharp + "=" + v.newv).join(", ")}`;
+    console.log(items);
+    console.log({
+      TableName: tableName,
+      Key: items,
+      ExpressionAttributeNames,
+      ExpressionAttributeValues,
+      UpdateExpression
+    });
+    return new Promise((resolve, reject) => {
+      this.client.updateItem({
+        TableName: tableName,
+        Key: items,
+        ExpressionAttributeNames,
+        ExpressionAttributeValues,
+        UpdateExpression
+      }, function(err, data) {
+        if (err) {
+          return reject(err);
+        } else {
+          return resolve(data);
+        }
+      });
+    });
+  }
+  async update2(tableName, whereKey, setParamPhrase, param) {
+    const documentClient = new AWS.DynamoDB.DocumentClient();
+    const { phrase, paramKeys } = this.createParamElement(setParamPhrase, param);
+    var params = {
+      TableName: tableName,
+      Key: whereKey,
+      UpdateExpression: phrase,
+      ExpressionAttributeValues: paramKeys,
+      ReturnValues: "UPDATED_NEW"
+    };
+    return new Promise((resolve, reject) => {
+      documentClient.update(params, function(err, data) {
         if (err) {
           return reject(err);
         } else {
@@ -1272,40 +1340,77 @@ var Dynamo = class {
   }
   async select(tableName, where, param) {
     const documentClient = new AWS.DynamoDB.DocumentClient();
-    const tmpParamKey = where.split("$").map((v) => v.split("=").map((v2) => v2.split(" ")).flat().filter((v2) => !!v2)).map((v) => v[v.length - 1]);
-    const paramKeys = {};
-    let wherePhrase = where;
-    tmpParamKey.slice(0, tmpParamKey.length - 1).forEach((key, idx) => {
-      paramKeys[`:${key}`] = [param].flat()[idx];
-      wherePhrase = wherePhrase.replace(`$${idx + 1}`, `:${key}`);
-    });
+    const { phrase, paramKeys } = this.createParamElement(where, param);
     return new Promise(async (resolve, reject) => {
       const queryParam = {
         TableName: tableName,
-        KeyConditionExpression: wherePhrase,
+        KeyConditionExpression: phrase,
         ExpressionAttributeValues: paramKeys
       };
+      console.log(queryParam);
       const data = await documentClient.query(queryParam).promise().catch((err) => {
         console.error(JSON.stringify(err));
       });
       return resolve(data);
     });
   }
+  getValueType(value) {
+    switch ((typeof value).toLowerCase()) {
+      case "number":
+        return "N";
+      case "string":
+        return "S";
+      case "boolean":
+        return "BOOL";
+      case "object":
+        return "S";
+      default:
+        "S";
+    }
+  }
+  createParamElement(paramPhrase, param) {
+    const tmpParamKey = paramPhrase.split("$").map((v) => v.split("=").map((v2) => v2.split(" ")).flat().filter((v2) => !!v2)).map((v) => v[v.length - 1]);
+    const paramKeys = {};
+    let phrase = paramPhrase;
+    tmpParamKey.slice(0, tmpParamKey.length - 1).forEach((key, idx) => {
+      paramKeys[`:${key}`] = [param].flat()[idx];
+      phrase = phrase.replace(`$${idx + 1}`, `:${key}`);
+    });
+    return {
+      paramKeys,
+      phrase
+    };
+  }
 };
 
 // src/functions/dynamo/handler.ts
 var handlerObj = async (event) => {
-  const dynamo = new Dynamo();
-  const putres = await dynamo.putValue("usersTable", {
-    id: { S: "123" },
-    name: { S: "\u7530\u4E2D2" }
-  });
-  console.log(putres);
-  const res = await dynamo.select("usersTable", `id = $1`, "123");
-  return formatJSONResponse({
-    message: JSON.stringify(res),
-    event
-  });
+  try {
+    const dynamo = new Dynamo();
+    const putres = await dynamo.putValue("chatUsersTable", {
+      username: "idname0002",
+      sf_client_id: "\u3068\u30FC\u304F22222",
+      sf_oauth_seq_key: "sf_oauth_seq_keysf_oauth_seq_keysf_oauth_seq_key"
+    });
+    console.log("putres----------");
+    console.log(putres);
+    const res2 = await dynamo.update("chatUsersTable", { username: "idname0002" }, { sf_client_id: "sf_client22222", slack_token: "gundam" });
+    console.log(res2);
+    const res = await dynamo.getValue("chatUsersTable", {
+      username: "idname0002"
+    });
+    return formatJSONResponse({
+      message: JSON.stringify(res),
+      event
+    });
+  } catch (e) {
+    console.log(e);
+    throw e;
+    return formatJSONResponse({
+      message: JSON.stringify(e),
+      event
+    });
+  }
 };
 var main = middyfy(handlerObj);
 // Annotate the CommonJS export names for ESM import in node:
