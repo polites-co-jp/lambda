@@ -5,20 +5,10 @@ export default {
   handler: `${handlerPath(__dirname)}/handler.main`,
 
   events: [
-    // {
-    //   cloudwatchLog: {
-    //     logGroup: "/aws/lambda/hello",
-    //     filter: "Info",
-    //   },
-    // },
     {
-      //       - http:
-      //           path: hello
-      //           method: get
-
       http: {
         method: "get",
-        path: "hello",
+        path: "sf-auth",
         // request: {
         //   schema: {
         //     "application/json": schema,

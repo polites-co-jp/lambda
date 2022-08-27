@@ -8,7 +8,7 @@ const hello: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   event
 ) => {
   return formatJSONResponse({
-    message: `はろわ!!`,
+    message: `はろわだぜ`,
     event,
   });
 };

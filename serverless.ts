@@ -3,6 +3,7 @@ import type { AWS } from "@serverless/typescript";
 import hello from "@functions/hello";
 import slackPost from "@functions/slack-post";
 import dynamo from "@functions/dynamo";
+import sfAuth from "@functions/sf-auth";
 
 const serverlessConfiguration: AWS = {
   service: "lambda",
@@ -39,7 +40,7 @@ const serverlessConfiguration: AWS = {
     // ],
   },
   // import the function via paths
-  functions: { hello, slackPost, dynamo },
+  functions: { hello, slackPost, dynamo, sfAuth },
   package: { individually: true },
   custom: {
     esbuild: {

@@ -65,6 +65,14 @@ export default class Dynamo {
 
     console.log(items);
 
+    const changeResultValue = (val) => {
+      let res = {};
+      Object.keys(val).forEach((k) => {
+        res[k] = Object.keys(val[k]).map((kv) => val[k][kv])[0];
+      });
+      return res;
+    };
+
     return new Promise((resolve, reject) => {
       this.client.getItem(
         {
@@ -76,7 +84,7 @@ export default class Dynamo {
           if (err) {
             return reject(err);
           } else {
-            return resolve(data);
+            return resolve(changeResultValue(data.Item ?? {}));
           }
         }
       );
